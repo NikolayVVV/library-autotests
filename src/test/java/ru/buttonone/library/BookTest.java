@@ -28,10 +28,10 @@ public class BookTest {
     @DisplayName(" корректно получать книги из БД")
     @Test
     public void shouldHaveCorrectGetBooksFromDb() throws JsonProcessingException {
-        Book expectedBook = new Book(1, "t1", 1);
-//json -> expectedBook
-        String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
-                .writeValueAsString(expectedBook);
+//        Book expectedBook = new Book(1, "t1", 1);
+////json -> expectedBook
+//        String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
+//                .writeValueAsString(expectedBook);
 
 
         ValidatableResponse validatableResponse = given()
@@ -92,7 +92,7 @@ public class BookTest {
                 .baseUri("http://localhost:8080")
                 .header(new Header("Content-Type", "application/json"))
                 .when()
-                .pathParam("id", 2)
+                .pathParam("id", 1)
                 .delete(BOOKS_PATH)
                 .then()
                 .log().all()
@@ -109,7 +109,7 @@ public class BookTest {
         ValidatableResponse validatableResponse = given()
                 .baseUri(BASE_URI)
                 .when()
-                .pathParam("id", 3)
+                .pathParam("id", 1)
                 .get(BOOKS_PATH)
                 .then()
                 .contentType(ContentType.JSON)

@@ -35,8 +35,7 @@ public class AuthorTest {
         Author firstAuthor = authorList.get(0);
 
         Assertions.assertAll(
-                () -> Assertions.assertEquals("a1", firstAuthor.getFio()),
-                () -> Assertions.assertEquals(1, firstAuthor.getId())
+                () -> Assertions.assertEquals("a1", firstAuthor.getFio())
         );
 
 
