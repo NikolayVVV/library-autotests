@@ -31,11 +31,11 @@ public class AuthorTest {
                 .log().all()
                 .statusCode(200);
 
-        List<Author> authorList = authorsDao.getAuthorsByFio("a1");
+        List<Author> authorList = authorsDao.getAuthorsByFio("Rowling");
         Author firstAuthor = authorList.get(0);
 
         Assertions.assertAll(
-                () -> Assertions.assertEquals("a1", firstAuthor.getFio())
+                () -> Assertions.assertEquals("Rowling", firstAuthor.getFio())
         );
 
 

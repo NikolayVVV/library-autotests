@@ -19,7 +19,7 @@ public class GenresDaoImpl implements GenresDao {
         try (Connection connection = DriverManager.getConnection(
                 props.getValue("db.url"),
                 props.getValue("db.login"),
-                props.getValue("db.password"));
+                props.getValue("db.password"))
         ) {
 
             PreparedStatement preparedStatement = connection

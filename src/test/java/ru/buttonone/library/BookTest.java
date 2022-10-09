@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import ru.buttonone.dao.BooksDao;
 import ru.buttonone.dao.BooksDaoImpl;
 import ru.buttonone.domain.Book;
-import ru.buttonone.domain.BookForAddToDb;
 
 import java.util.List;
 
@@ -23,6 +22,39 @@ public class BookTest {
     private final static String BASE_URI = "http://localhost:8080";
     private final static String BOOKS_PATH = "http://localhost:8080/api/books/{id}";
     private BooksDao booksDao = new BooksDaoImpl();
+
+
+    @DisplayName("После добавления книга появляется в БД")
+    @Test
+    public void shouldHaveCorrectEntityInDbAfterAddingBook() throws JsonProcessingException {
+
+        Book expectedBook = new Book("1", "Rowling", "Fantastic", "HarryPotter");
+//expectedBook -> json
+        String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
+                .writeValueAsString(expectedBook);
+
+        RestAssured.given()
+                .baseUri("http://localhost:8080")
+                .header(new Header("Content-Type", "application/json"))
+                .body(jsonExpectedBook)
+                .when()
+                .post("/api/books/add")
+                .then()
+                .log().all()
+                .statusCode(200);
+
+
+        Book firstBook = booksDao.getBooks("HarryPotter").get(0);
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals("Fantastic", firstBook.getGenre()),
+                () -> Assertions.assertEquals("Rowling", firstBook.getAuthors()),
+                () -> Assertions.assertEquals("HarryPotter", firstBook.getTitle())
+
+        );
+
+
+    }
 
 
     @DisplayName(" корректно получать книги из БД")
@@ -48,55 +80,13 @@ public class BookTest {
                 .body()
                 .jsonPath().get();
 
-        System.out.println("booksDao.getBooks(\"t1\") = " + booksDao.getBooks("t1"));
-        List<Book> bookList = booksDao.getBooks("t1");
+        List<Book> bookList = booksDao.getBooks("HarryPotter");
         Book firstBook = bookList.get(0);
 
         Assertions.assertAll(
-                () -> Assertions.assertEquals("t1", firstBook.getTitle()),
-                () -> Assertions.assertEquals(1, firstBook.getGenreId())
+                () -> Assertions.assertEquals("HarryPotter", firstBook.getTitle()),
+                () -> Assertions.assertEquals("Fantastic", firstBook.getGenre())
         );
-
-
-    }
-
-
-    @DisplayName("После добавления книга появляется в БД")
-    @Test
-    public void shouldHaveCorrectEntityInDbAfterAddingBook() throws JsonProcessingException {
-
-        BookForAddToDb expectedBook = new BookForAddToDb("100", "test", "test", "test");
-//expectedBook -> json
-        String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
-                .writeValueAsString(expectedBook);
-
-        RestAssured.given()
-                .baseUri("http://localhost:8080")
-                .header(new Header("Content-Type", "application/json"))
-                .body(jsonExpectedBook)
-                .when()
-                .post("/api/books/add")
-                .then()
-                .log().all()
-                .statusCode(200);
-
-
-    }
-
-
-    @DisplayName(" корректно удалить книгу из БД")
-    @Test
-    public void shouldHaveCorrectDeleteBookFromDb() throws JsonProcessingException {
-
-        RestAssured.given()
-                .baseUri("http://localhost:8080")
-                .header(new Header("Content-Type", "application/json"))
-                .when()
-                .pathParam("id", 1)
-                .delete(BOOKS_PATH)
-                .then()
-                .log().all()
-                .statusCode(200);
 
 
     }
@@ -115,6 +105,24 @@ public class BookTest {
                 .contentType(ContentType.JSON)
                 .log().all()
                 .statusCode(200);
+
+    }
+
+
+    @DisplayName(" корректно удалить книгу из БД")
+    @Test
+    public void shouldHaveCorrectDeleteBookFromDb() throws JsonProcessingException {
+
+        RestAssured.given()
+                .baseUri("http://localhost:8080")
+                .header(new Header("Content-Type", "application/json"))
+                .when()
+                .pathParam("id", 1)
+                .delete(BOOKS_PATH)
+                .then()
+                .log().all()
+                .statusCode(200);
+
 
     }
 

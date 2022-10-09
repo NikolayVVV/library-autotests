@@ -18,7 +18,7 @@ public class GenreTest {
     private final static String GENRES_PATH = "http://localhost:8080/api/books/1";
     private final GenresDao genresDao = new GenresDaoImpl();
 
-    @DisplayName(" корректно получать автора из БД")
+    @DisplayName(" корректно получать жанр из БД")
     @Test
     public void shouldHaveCorrectGetAuthorsFromDb() {
 
@@ -31,12 +31,12 @@ public class GenreTest {
                 .log().all()
                 .statusCode(200);
 
-        List<Genre> genreList = genresDao.getGenresByName("g1");
+        List<Genre> genreList = genresDao.getGenresByName("Fantastic");
         System.out.println("genresList = " + genreList);
         Genre firstGenres = genreList.get(0);
 
         Assertions.assertAll(
-                () -> Assertions.assertEquals("g1", firstGenres.getName())
+                () -> Assertions.assertEquals("Fantastic", firstGenres.getName())
         );
 
     }

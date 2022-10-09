@@ -10,11 +10,11 @@ import java.util.List;
 
 public class BooksDaoImpl implements BooksDao {
     private Props props = new Props();
-    private Book book;
 
     @Override
     public List<Book> getBooks(String titleOfBook) {
-        String insertSQL = "select * from books where title = ?";
+        String insertSQL = "select b.id, b.title, a.fio, g.name from books b join books_authors ba on b.id = ba.book_id join authors a on ba.author_id = a.id join genres g \n" +
+                "on b.genre_id  = g.id where title = ?";
         try (Connection connection = DriverManager.getConnection(
                 props.getValue("db.url"),
                 props.getValue("db.login"),
@@ -27,12 +27,12 @@ public class BooksDaoImpl implements BooksDao {
 
             ResultSet resultSet = preparedStatement.executeQuery();
             List<Book> list = new ArrayList<>();
-            StringBuilder stringBuilder = new StringBuilder();
             while (resultSet.next()) {
-                int id = resultSet.getInt("id");
+                String id = resultSet.getString("id");
+                String author = resultSet.getString("fio");
+                String genre = resultSet.getString("name");
                 String title = resultSet.getString("title");
-                int genreId = resultSet.getInt("genre_id");
-                list.add(new Book(id, title, genreId));
+                list.add(new Book(id, author, genre, title));
             }
             return list;
         } catch (SQLException throwables) {
