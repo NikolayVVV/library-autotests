@@ -5,10 +5,9 @@ import ru.buttonone.domain.Book;
 import java.util.List;
 
 public interface BooksDao {
-    List<Book> getBooks(String titleOfBook);
+    List<Book> getBooksByTitle(String titleOfBook);
 
-    void addBooks(String title, int genreId);
+    List<Book> getBooksById(int idOfBook);
 
-    void deleteBooks(String title);
 
 }
