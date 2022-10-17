@@ -31,8 +31,7 @@ public class AuthorTest {
                 .log().all()
                 .statusCode(200);
 
-        List<Author> authorList = authorsDao.getAuthorsByFio("Rowling");
-        Author firstAuthor = authorList.get(0);
+        Author firstAuthor = authorsDao.getAuthorsByFio("Rowling").get(0);
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Rowling", firstAuthor.getFio())

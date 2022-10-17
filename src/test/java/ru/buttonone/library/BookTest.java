@@ -60,12 +60,6 @@ public class BookTest {
     @DisplayName(" корректно получать книги из БД")
     @Test
     public void shouldHaveCorrectGetBooksFromDb() throws JsonProcessingException {
-//        Book expectedBook = new Book(1, "t1", 1);
-////json -> expectedBook
-//        String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
-//                .writeValueAsString(expectedBook);
-
-
         ValidatableResponse validatableResponse = given()
                 .baseUri(BASE_URI)
                 .when()
@@ -75,19 +69,12 @@ public class BookTest {
                 .log().all()
                 .statusCode(200);
 
-        List<Book> listOfBooks = validatableResponse
-                .extract()
-                .body()
-                .jsonPath().getList("", Book.class);
-
-
-        List<Book> bookList = booksDao.getBooksByTitle("HarryPotter");
-        Book firstBook = bookList.get(0);
+        Book firstBook = booksDao.getBooksByTitle("HarryPotter").get(0);
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("HarryPotter", firstBook.getTitle()),
                 () -> Assertions.assertEquals("Fantastic", firstBook.getGenre()),
-                () -> Assertions.assertEquals("HarryPotter", listOfBooks.get(0).getTitle())
+                () -> Assertions.assertEquals("Rowling", firstBook.getAuthors())
         );
 
 
@@ -108,8 +95,7 @@ public class BookTest {
                 .log().all()
                 .statusCode(200);
 
-        List<Book> bookList = booksDao.getBooksById(1);
-        Book firstBook = bookList.get(0);
+        Book firstBook = booksDao.getBooksById(1).get(0);
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals(1, firstBook.getId())
@@ -133,7 +119,7 @@ public class BookTest {
                 .statusCode(200);
 
 
-        List<Book> bookList = booksDao.getBooksById(3);
+        List<Book> bookList = booksDao.getBooksById(1);
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals(0, bookList.size())
@@ -144,12 +130,6 @@ public class BookTest {
     @DisplayName(" корректно получать пустой массив из БД когда в нем нет книг")
     @Test
     public void shouldHaveCorrectGetEmptyArrayFromDb() throws JsonProcessingException {
-//        Book expectedBook = new Book(1, "t1", 1);
-////json -> expectedBook
-//        String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
-//                .writeValueAsString(expectedBook);
-
-
         ValidatableResponse validatableResponse = given()
                 .baseUri(BASE_URI)
                 .when()
@@ -163,9 +143,6 @@ public class BookTest {
                 .extract()
                 .body()
                 .jsonPath().getList("", Book.class);
-
-
-        System.out.println("listOfBooks = " + listOfBooks);
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals(0, listOfBooks.size())

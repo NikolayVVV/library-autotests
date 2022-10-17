@@ -31,9 +31,7 @@ public class GenreTest {
                 .log().all()
                 .statusCode(200);
 
-        List<Genre> genreList = genresDao.getGenresByName("Fantastic");
-        System.out.println("genresList = " + genreList);
-        Genre firstGenres = genreList.get(0);
+        Genre firstGenres = genresDao.getGenresByName("Fantastic").get(0);
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Fantastic", firstGenres.getName())
