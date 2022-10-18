@@ -1,33 +1,40 @@
 package ru.buttonone.library;
 
-import io.restassured.http.ContentType;
-import io.restassured.response.ValidatableResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.restassured.RestAssured;
+import io.restassured.http.Header;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.buttonone.dao.AuthorsDao;
 import ru.buttonone.dao.AuthorsDaoImpl;
 import ru.buttonone.domain.Author;
+import ru.buttonone.domain.Book;
 
-import java.util.List;
 
-import static io.restassured.RestAssured.given;
+import static ru.buttonone.library.specifications.LibrarySpecifications.ADD_BOOK_PATH;
+import static ru.buttonone.library.specifications.LibrarySpecifications.BASE_URI;
 
 public class AuthorTest {
-    private final static String BASE_URI = "http://localhost:8080";
-    private final static String AUTHORS_PATH = "http://localhost:8080/api/books/1";
     private final AuthorsDao authorsDao = new AuthorsDaoImpl();
 
     @DisplayName(" корректно получать автора из БД")
     @Test
-    public void shouldHaveCorrectGetAuthorsFromDb() {
+    public void shouldHaveCorrectGetAuthorsFromDb() throws JsonProcessingException {
 
-        ValidatableResponse validatableResponse = given()
+        Book expectedBook = new Book(1, "Rowling", "Fantastic", "HarryPotter");
+//expectedBook -> json
+        String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
+                .writeValueAsString(expectedBook);
+
+        RestAssured.given()
                 .baseUri(BASE_URI)
+                .header(new Header("Content-Type", "application/json"))
+                .body(jsonExpectedBook)
                 .when()
-                .get(AUTHORS_PATH)
+                .post(ADD_BOOK_PATH)
                 .then()
-                .contentType(ContentType.JSON)
                 .log().all()
                 .statusCode(200);
 

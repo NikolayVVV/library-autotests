@@ -41,11 +41,9 @@ public class BooksDaoImpl implements BooksDao {
         throw new BookNotFoundException("Book not found");
     }
 
-
     @Override
-    public List<Book> getBooksById(int idOfBook) {
-        String insertSQL = "select b.id, b.title, a.fio, g.name from books b join books_authors ba on b.id = ba.book_id join authors a on ba.author_id = a.id join genres g\n" +
-                "    on b.genre_id  = g.id where b.id = ?";
+    public void deleteBookByTitle(String titleOfBook) {
+        String insertSQL = "delete from books where title  = ?";
         try (Connection connection = DriverManager.getConnection(
                 props.getValue("db.url"),
                 props.getValue("db.login"),
@@ -54,22 +52,14 @@ public class BooksDaoImpl implements BooksDao {
 
             PreparedStatement preparedStatement = connection
                     .prepareStatement(insertSQL);
-            preparedStatement.setInt(1, idOfBook);
+            preparedStatement.setString(1, titleOfBook);
 
-            ResultSet resultSet = preparedStatement.executeQuery();
-            List<Book> list = new ArrayList<>();
-            while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String author = resultSet.getString("fio");
-                String genre = resultSet.getString("name");
-                String title = resultSet.getString("title");
-                list.add(new Book(id, author, genre, title));
-            }
-            return list;
+            int insertRows = preparedStatement.executeUpdate();
+            System.out.println("Book is delete");
+
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-        throw new BookNotFoundException("Book not found");
     }
 
 
