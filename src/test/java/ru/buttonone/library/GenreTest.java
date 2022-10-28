@@ -23,7 +23,7 @@ public class GenreTest {
 
     @DisplayName(" корректно добавлять книгу в БД и проверять жанр через БД")
     @Test
-    public void shouldHaveCorrectGetAuthorsFromDb() throws JsonProcessingException {
+    public void shouldHaveCorrectPostBookToDb() throws JsonProcessingException {
         Book expectedBook = new Book(1, "Rowling", "Fantastic", "HarryPotter");
 //expectedBook -> json
         String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
