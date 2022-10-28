@@ -16,6 +16,7 @@ import ru.buttonone.domain.Book;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.is;
 import static ru.buttonone.library.specifications.LibrarySpecifications.*;
 
 
@@ -23,9 +24,9 @@ public class BookTest {
     private BooksDao booksDao = new BooksDaoImpl();
 
 
-    @DisplayName("после добавления книга появляется в БД")
+    @DisplayName("Test 1")
     @Test
-    public void shouldHaveCorrectEntityInDbAfterAddingBook() throws JsonProcessingException {
+    public void сreateSomeEntityWithPostCommandAndCheckingDatabaseWithHelpSelectCommand() throws JsonProcessingException {
 
         Book expectedBook = new Book(1, "Rowling", "Fantastic", "HarryPotter");
 //expectedBook -> json
@@ -51,14 +52,15 @@ public class BookTest {
                 () -> Assertions.assertEquals("HarryPotter", firstBook.getTitle())
 
         );
+        booksDao.deleteBookByTitle("HarryPotter");
 
 
     }
 
 
-    @DisplayName(" корректно получать книги из БД")
+    @DisplayName("Test 2")
     @Test
-    public void shouldHaveCorrectGetBooksFromDb() throws JsonProcessingException {
+    public void createSomeEntityWithPostCommandAndCheckingWithHelpGetCommand() throws JsonProcessingException {
         Book firstExpectedBook = new Book(1, "Rowling", "Fantastic", "HarryPotter");
 //expectedBook -> json
         String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
@@ -90,7 +92,7 @@ public class BookTest {
                 .statusCode(200);
 
 
-        RestAssured.given()
+        ValidatableResponse validatableResponse = given()
                 .baseUri(BASE_URI)
                 .when()
                 .get(GET_BOOK_PATH)
@@ -99,25 +101,25 @@ public class BookTest {
                 .log().all()
                 .statusCode(200);
 
-        Book firstBook = booksDao.getBooksByTitle("HarryPotter").get(0);
-        Book secondBook = booksDao.getBooksByTitle("LOTR").get(0);
+        List<Book> listOfBooks = validatableResponse
+                .extract()
+                .body()
+                .jsonPath().getList("", Book.class);
+
 
         Assertions.assertAll(
-                () -> Assertions.assertEquals("HarryPotter", firstBook.getTitle()),
-                () -> Assertions.assertEquals("Fantastic", firstBook.getGenre()),
-                () -> Assertions.assertEquals("Rowling", firstBook.getAuthors()),
-                () -> Assertions.assertEquals("LOTR", secondBook.getTitle()),
-                () -> Assertions.assertEquals("Fantasy", secondBook.getGenre()),
-                () -> Assertions.assertEquals("Tolkien", secondBook.getAuthors())
+                () -> Assertions.assertEquals("HarryPotter", listOfBooks.get(0).getTitle()),
+                () -> Assertions.assertEquals("LOTR", listOfBooks.get(1).getTitle())
         );
+        booksDao.deleteBookByTitle("HarryPotter");
+        booksDao.deleteBookByTitle("LOTR");
 
 
     }
 
-
-    @DisplayName(" корректно удалить книгу из БД")
+    @DisplayName("Test 3")
     @Test
-    public void shouldHaveCorrectDeleteBookFromDb() throws JsonProcessingException {
+    public void deleteSomeEntityWithDeleteCommandAndCheckingEntityWithHelpGetCommand() throws JsonProcessingException {
         Book firstExpectedBook = new Book(1, "Rowling", "Fantastic", "HarryPotter");
 //expectedBook -> json
         String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
@@ -157,4 +159,55 @@ public class BookTest {
     }
 
 
+    @DisplayName("Test 4")
+    @Test
+    public void createSomeEntityWithPostCommandThenDeleteHerAndCheckingWithHelpGetCommand() throws JsonProcessingException {
+        Book firstExpectedBook = new Book(1, "Rowling", "Fantastic", "HarryPotter");
+//expectedBook -> json
+        String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
+                .writeValueAsString(firstExpectedBook);
+
+        RestAssured.given()
+                .baseUri(BASE_URI)
+                .header(new Header("Content-Type", "application/json"))
+                .body(jsonExpectedBook)
+                .when()
+                .post(ADD_BOOK_PATH)
+                .then()
+                .log().all()
+                .statusCode(200);
+
+        RestAssured.given()
+                .baseUri(BASE_URI)
+                .header(new Header("Content-Type", "application/json"))
+                .body(jsonExpectedBook)
+                .when()
+                .delete("/api/books/1")
+                .then()
+                .log().all()
+                .statusCode(200);
+
+
+        ValidatableResponse validatableResponse = given()
+                .baseUri(BASE_URI)
+                .when()
+                .get(GET_BOOK_PATH)
+                .then()
+                .contentType(ContentType.JSON)
+                .log().all()
+                .statusCode(200);
+
+        List<Book> listOfBooks = validatableResponse
+                .extract()
+                .body()
+                .jsonPath().getList("", Book.class);
+
+        Assertions.assertAll(
+                () -> Assertions.assertFalse(listOfBooks.contains(firstExpectedBook))
+        );
+
+        booksDao.deleteBookByTitle("HarryPotter");
+
+
+    }
 }

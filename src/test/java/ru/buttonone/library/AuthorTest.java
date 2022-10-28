@@ -9,6 +9,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.buttonone.dao.AuthorsDao;
 import ru.buttonone.dao.AuthorsDaoImpl;
+import ru.buttonone.dao.BooksDao;
+import ru.buttonone.dao.BooksDaoImpl;
 import ru.buttonone.domain.Author;
 import ru.buttonone.domain.Book;
 
@@ -18,10 +20,11 @@ import static ru.buttonone.library.specifications.LibrarySpecifications.BASE_URI
 
 public class AuthorTest {
     private final AuthorsDao authorsDao = new AuthorsDaoImpl();
+    private BooksDao booksDao = new BooksDaoImpl();
 
-    @DisplayName(" корректно получать автора из БД")
+    @DisplayName(" корректно добавлять книгу в БД и проверять автора через БД")
     @Test
-    public void shouldHaveCorrectGetAuthorsFromDb() throws JsonProcessingException {
+    public void shouldHaveCorrectPostBookToDb() throws JsonProcessingException {
 
         Book expectedBook = new Book(1, "Rowling", "Fantastic", "HarryPotter");
 //expectedBook -> json
@@ -43,6 +46,8 @@ public class AuthorTest {
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Rowling", firstAuthor.getFio())
         );
+
+        booksDao.deleteBookByTitle("HarryPotter");
 
 
     }

@@ -7,6 +7,8 @@ import io.restassured.http.Header;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import ru.buttonone.dao.BooksDao;
+import ru.buttonone.dao.BooksDaoImpl;
 import ru.buttonone.dao.GenresDao;
 import ru.buttonone.dao.GenresDaoImpl;
 import ru.buttonone.domain.Book;
@@ -17,8 +19,9 @@ import static ru.buttonone.library.specifications.LibrarySpecifications.BASE_URI
 
 public class GenreTest {
     private final GenresDao genresDao = new GenresDaoImpl();
+    private BooksDao booksDao = new BooksDaoImpl();
 
-    @DisplayName(" корректно получать жанр из БД")
+    @DisplayName(" корректно добавлять книгу в БД и проверять жанр через БД")
     @Test
     public void shouldHaveCorrectGetAuthorsFromDb() throws JsonProcessingException {
         Book expectedBook = new Book(1, "Rowling", "Fantastic", "HarryPotter");
@@ -41,6 +44,8 @@ public class GenreTest {
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Fantastic", firstGenres.getName())
         );
+        booksDao.deleteBookByTitle("HarryPotter");
+
 
     }
 
