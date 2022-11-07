@@ -11,43 +11,32 @@ import ru.buttonone.dao.BooksDao;
 import ru.buttonone.dao.BooksDaoImpl;
 import ru.buttonone.dao.GenresDao;
 import ru.buttonone.dao.GenresDaoImpl;
-import ru.buttonone.domain.Book;
 import ru.buttonone.domain.Genre;
+import ru.buttonone.library.specifications.LibrarySpecifications;
 
-import static ru.buttonone.library.specifications.LibrarySpecifications.ADD_BOOK_PATH;
-import static ru.buttonone.library.specifications.LibrarySpecifications.BASE_URI;
+import static ru.buttonone.library.specifications.LibraryConstants.*;
 
 public class GenreTest {
     private final GenresDao genresDao = new GenresDaoImpl();
-    private BooksDao booksDao = new BooksDaoImpl();
+    private final BooksDao booksDao = new BooksDaoImpl();
 
     @DisplayName(" корректно добавлять книгу в БД и проверять жанр через БД")
     @Test
     public void shouldHaveCorrectPostBookToDb() throws JsonProcessingException {
-        Book expectedBook = new Book(1, "Rowling", "Fantastic", "HarryPotter");
 //expectedBook -> json
         String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
-                .writeValueAsString(expectedBook);
+                .writeValueAsString(bookHarryPotter);
 
         RestAssured.given()
-                .baseUri(BASE_URI)
-                .header(new Header("Content-Type", "application/json"))
+                .spec(LibrarySpecifications.postRequestSpecification())
                 .body(jsonExpectedBook)
                 .when()
                 .post(ADD_BOOK_PATH)
                 .then()
-                .log().all()
-                .statusCode(200);
+                .spec(LibrarySpecifications.postResponseSpecification());
 
         Genre firstGenres = genresDao.getGenresByName("Fantastic").get(0);
-
-        Assertions.assertAll(
-                () -> Assertions.assertEquals("Fantastic", firstGenres.getName())
-        );
-        booksDao.deleteBookByTitle("HarryPotter");
-
-
+        Assertions.assertEquals(bookHarryPotter.getGenre(), firstGenres.getName());
+        booksDao.deleteBookByTitle(HARRY_POTTER);
     }
-
-
 }

@@ -3,8 +3,6 @@ package ru.buttonone.library;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import io.restassured.http.Header;
 import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -12,202 +10,157 @@ import org.junit.jupiter.api.Test;
 import ru.buttonone.dao.BooksDao;
 import ru.buttonone.dao.BooksDaoImpl;
 import ru.buttonone.domain.Book;
+import ru.buttonone.library.specifications.LibrarySpecifications;
 
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.is;
-import static ru.buttonone.library.specifications.LibrarySpecifications.*;
+import static ru.buttonone.library.specifications.LibraryConstants.*;
 
 
 public class BookTest {
-    private BooksDao booksDao = new BooksDaoImpl();
+    private final BooksDao booksDao = new BooksDaoImpl();
 
 
-    @DisplayName("Test 1")
+    @DisplayName("BUT-69 - Test 1")
     @Test
-    public void сreateSomeEntityWithPostCommandAndCheckingDatabaseWithHelpSelectCommand() throws JsonProcessingException {
+    public void createEntityWithPostAndCheckDbWithSelect() throws JsonProcessingException {
 
-        Book expectedBook = new Book(1, "Rowling", "Fantastic", "HarryPotter");
 //expectedBook -> json
         String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
-                .writeValueAsString(expectedBook);
+                .writeValueAsString(bookHarryPotter);
 
         RestAssured.given()
-                .baseUri(BASE_URI)
-                .header(new Header("Content-Type", "application/json"))
+                .spec(LibrarySpecifications.postRequestSpecification())
                 .body(jsonExpectedBook)
                 .when()
                 .post(ADD_BOOK_PATH)
                 .then()
-                .log().all()
-                .statusCode(200);
+                .spec(LibrarySpecifications.postResponseSpecification());
 
-
-        Book firstBook = booksDao.getBooksByTitle("HarryPotter").get(0);
+        Book firstBook = booksDao.getBooksByTitle(HARRY_POTTER).get(0);
 
         Assertions.assertAll(
-                () -> Assertions.assertEquals("Fantastic", firstBook.getGenre()),
-                () -> Assertions.assertEquals("Rowling", firstBook.getAuthors()),
-                () -> Assertions.assertEquals("HarryPotter", firstBook.getTitle())
-
+                () -> Assertions.assertEquals(bookHarryPotter.getGenre(), firstBook.getGenre()),
+                () -> Assertions.assertEquals(bookHarryPotter.getAuthors(), firstBook.getAuthors()),
+                () -> Assertions.assertEquals(HARRY_POTTER, firstBook.getTitle())
         );
-        booksDao.deleteBookByTitle("HarryPotter");
-
-
+        booksDao.deleteBookByTitle(HARRY_POTTER);
     }
 
 
-    @DisplayName("Test 2")
+    @DisplayName("BUT-70 - Test 2")
     @Test
-    public void createSomeEntityWithPostCommandAndCheckingWithHelpGetCommand() throws JsonProcessingException {
-        Book firstExpectedBook = new Book(1, "Rowling", "Fantastic", "HarryPotter");
+    public void createEntityWithPostAndCheckWithGet() throws JsonProcessingException {
 //expectedBook -> json
         String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
-                .writeValueAsString(firstExpectedBook);
+                .writeValueAsString(bookHarryPotter);
 
-        RestAssured.given()
-                .baseUri(BASE_URI)
-                .header(new Header("Content-Type", "application/json"))
+        given()
+                .spec(LibrarySpecifications.postRequestSpecification())
                 .body(jsonExpectedBook)
                 .when()
                 .post(ADD_BOOK_PATH)
                 .then()
-                .log().all()
-                .statusCode(200);
+                .spec(LibrarySpecifications.postResponseSpecification());
 
-        Book secondExpectedBook = new Book(2, "Tolkien", "Fantasy", "LOTR");
-//expectedBook -> json
         String secondJsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
-                .writeValueAsString(secondExpectedBook);
+                .writeValueAsString(bookLOTR);
 
-        RestAssured.given()
-                .baseUri(BASE_URI)
-                .header(new Header("Content-Type", "application/json"))
+        given()
+                .spec(LibrarySpecifications.postRequestSpecification())
                 .body(secondJsonExpectedBook)
                 .when()
                 .post(ADD_BOOK_PATH)
                 .then()
-                .log().all()
-                .statusCode(200);
-
+                .spec(LibrarySpecifications.postResponseSpecification());
 
         ValidatableResponse validatableResponse = given()
-                .baseUri(BASE_URI)
+                .spec(LibrarySpecifications.getRequestSpecification())
                 .when()
                 .get(GET_BOOK_PATH)
                 .then()
-                .contentType(ContentType.JSON)
-                .log().all()
-                .statusCode(200);
+                .spec(LibrarySpecifications.getResponseSpecification());
 
         List<Book> listOfBooks = validatableResponse
                 .extract()
                 .body()
                 .jsonPath().getList("", Book.class);
 
-
         Assertions.assertAll(
-                () -> Assertions.assertEquals("HarryPotter", listOfBooks.get(0).getTitle()),
-                () -> Assertions.assertEquals("LOTR", listOfBooks.get(1).getTitle())
+                () -> Assertions.assertEquals(HARRY_POTTER, listOfBooks.get(0).getTitle()),
+                () -> Assertions.assertEquals(LOTR, listOfBooks.get(1).getTitle())
         );
-        booksDao.deleteBookByTitle("HarryPotter");
-        booksDao.deleteBookByTitle("LOTR");
-
-
+        booksDao.deleteBookByTitle(HARRY_POTTER);
+        booksDao.deleteBookByTitle(LOTR);
     }
 
-    @DisplayName("Test 3")
+    @DisplayName("BUT-71 - Test 3")
     @Test
-    public void deleteSomeEntityWithDeleteCommandAndCheckingEntityWithHelpGetCommand() throws JsonProcessingException {
-        Book firstExpectedBook = new Book(1, "Rowling", "Fantastic", "HarryPotter");
-//expectedBook -> json
+    public void deleteEntityWithHelpDeleteAndCheckEntityWithHelpGet() throws JsonProcessingException {
         String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
-                .writeValueAsString(firstExpectedBook);
+                .writeValueAsString(bookHarryPotter);
 
         RestAssured.given()
-                .baseUri(BASE_URI)
-                .header(new Header("Content-Type", "application/json"))
+                .spec(LibrarySpecifications.postRequestSpecification())
                 .body(jsonExpectedBook)
                 .when()
                 .post(ADD_BOOK_PATH)
                 .then()
-                .log().all()
-                .statusCode(200);
+                .spec(LibrarySpecifications.postResponseSpecification());
 
-
-        booksDao.deleteBookByTitle("HarryPotter");
+        booksDao.deleteBookByTitle(HARRY_POTTER);
 
         ValidatableResponse validatableResponse = given()
-                .baseUri(BASE_URI)
+                .spec(LibrarySpecifications.getRequestSpecification())
                 .when()
                 .get(GET_BOOK_PATH)
                 .then()
-                .contentType(ContentType.JSON)
-                .log().all()
-                .statusCode(200);
+                .spec(LibrarySpecifications.getResponseSpecification());
 
         List<Book> listOfBooks = validatableResponse
                 .extract()
                 .body()
                 .jsonPath().getList("", Book.class);
 
-        Assertions.assertAll(
-                () -> Assertions.assertFalse(listOfBooks.contains(firstExpectedBook))
-        );
-
+        Assertions.assertFalse(listOfBooks.contains(bookHarryPotter));
     }
 
-
-    @DisplayName("Test 4")
+    @DisplayName("BUT-72 - Test 4")
     @Test
-    public void createSomeEntityWithPostCommandThenDeleteHerAndCheckingWithHelpGetCommand() throws JsonProcessingException {
-        Book firstExpectedBook = new Book(1, "Rowling", "Fantastic", "HarryPotter");
-//expectedBook -> json
+    public void createEntityWithPostThenDeleteHerAndCheckWithHelpGet() throws JsonProcessingException {
         String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
-                .writeValueAsString(firstExpectedBook);
+                .writeValueAsString(bookHarryPotter);
 
         RestAssured.given()
-                .baseUri(BASE_URI)
-                .header(new Header("Content-Type", "application/json"))
+                .spec(LibrarySpecifications.postRequestSpecification())
                 .body(jsonExpectedBook)
                 .when()
                 .post(ADD_BOOK_PATH)
                 .then()
-                .log().all()
-                .statusCode(200);
+                .spec(LibrarySpecifications.postResponseSpecification());
 
         RestAssured.given()
-                .baseUri(BASE_URI)
-                .header(new Header("Content-Type", "application/json"))
-                .body(jsonExpectedBook)
+                .spec(LibrarySpecifications.deleteRequestSpecification())
                 .when()
-                .delete("/api/books/1")
+                .delete(DELETE_BOOK_PATH)
                 .then()
-                .log().all()
-                .statusCode(200);
-
+                .spec(LibrarySpecifications.deleteResponseSpecification());
 
         ValidatableResponse validatableResponse = given()
-                .baseUri(BASE_URI)
+                .spec(LibrarySpecifications.getRequestSpecification())
                 .when()
                 .get(GET_BOOK_PATH)
                 .then()
-                .contentType(ContentType.JSON)
-                .log().all()
-                .statusCode(200);
+                .spec(LibrarySpecifications.getResponseSpecification());
 
         List<Book> listOfBooks = validatableResponse
                 .extract()
                 .body()
                 .jsonPath().getList("", Book.class);
 
-        Assertions.assertAll(
-                () -> Assertions.assertFalse(listOfBooks.contains(firstExpectedBook))
-        );
+        Assertions.assertFalse(listOfBooks.contains(bookHarryPotter));
 
-        booksDao.deleteBookByTitle("HarryPotter");
-
-
+        booksDao.deleteBookByTitle(HARRY_POTTER);
     }
 }

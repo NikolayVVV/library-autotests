@@ -1,8 +1,55 @@
 package ru.buttonone.library.specifications;
 
-public class LibrarySpecifications {
-    public final static String BASE_URI = "http://localhost:8081";
-    public final static String ADD_BOOK_PATH = "/api/books/add";
-    public final static String GET_BOOK_PATH = "/api/books";
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.filter.log.LogDetail;
+import io.restassured.http.ContentType;
+import io.restassured.specification.RequestSpecification;
+import io.restassured.specification.ResponseSpecification;
 
+import static ru.buttonone.library.specifications.LibraryConstants.BASE_URI;
+import static ru.buttonone.library.specifications.LibraryConstants.STATUS_CODE;
+
+public class LibrarySpecifications {
+
+    public static RequestSpecification postRequestSpecification() {
+        return new RequestSpecBuilder()
+                .addHeader("Content-Type", "application/json")
+                .setBaseUri(BASE_URI)
+                .build();
+    }
+    public static ResponseSpecification postResponseSpecification() {
+        return new ResponseSpecBuilder()
+                .log(LogDetail.ALL)
+                .expectStatusCode(STATUS_CODE)
+                .build();
+    }
+
+    public static RequestSpecification getRequestSpecification() {
+        return new RequestSpecBuilder()
+                .addHeader("Content-Type", "application/json")
+                .setBaseUri(BASE_URI)
+                .build();
+    }
+    public static ResponseSpecification getResponseSpecification() {
+        return new ResponseSpecBuilder()
+                .log(LogDetail.ALL)
+                .expectStatusCode(STATUS_CODE)
+                .expectContentType(ContentType.JSON)
+                .build();
+    }
+
+    public static RequestSpecification deleteRequestSpecification() {
+        return new RequestSpecBuilder()
+                .addHeader("Content-Type", "application/json")
+                .setBaseUri(BASE_URI)
+                .build();
+    }
+    public static ResponseSpecification deleteResponseSpecification() {
+        return new ResponseSpecBuilder()
+                .log(LogDetail.ALL)
+                .expectStatusCode(STATUS_CODE)
+                .expectContentType(ContentType.TEXT)
+                .build();
+    }
 }

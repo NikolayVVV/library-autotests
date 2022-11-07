@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BooksDaoImpl implements BooksDao {
-    private Props props = new Props();
+    private final Props props = new Props();
 
     @Override
     public List<Book> getBooksByTitle(String titleOfBook) {
@@ -18,13 +18,11 @@ public class BooksDaoImpl implements BooksDao {
         try (Connection connection = DriverManager.getConnection(
                 props.getValue("db.url"),
                 props.getValue("db.login"),
-                props.getValue("db.password"));
+                props.getValue("db.password"))
         ) {
-
             PreparedStatement preparedStatement = connection
                     .prepareStatement(insertSQL);
             preparedStatement.setString(1, titleOfBook);
-
             ResultSet resultSet = preparedStatement.executeQuery();
             List<Book> list = new ArrayList<>();
             while (resultSet.next()) {
@@ -47,18 +45,14 @@ public class BooksDaoImpl implements BooksDao {
         try (Connection connection = DriverManager.getConnection(
                 props.getValue("db.url"),
                 props.getValue("db.login"),
-                props.getValue("db.password"));
+                props.getValue("db.password"))
         ) {
-
             PreparedStatement preparedStatement = connection
                     .prepareStatement(insertSQL);
             preparedStatement.setString(1, titleOfBook);
-
-            int insertRows = preparedStatement.executeUpdate();
-            System.out.println("Book is delete");
-
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            preparedStatement.executeUpdate();
+        } catch (SQLException exc) {
+            exc.printStackTrace();
         }
     }
 
