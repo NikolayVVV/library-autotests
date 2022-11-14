@@ -33,8 +33,8 @@ public class BooksDaoImpl implements BooksDao {
                 list.add(new Book(id, author, genre, title));
             }
             return list;
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException exc) {
+            exc.printStackTrace();
         }
         throw new BookNotFoundException("Book not found");
     }

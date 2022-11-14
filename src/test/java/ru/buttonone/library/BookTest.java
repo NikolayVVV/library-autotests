@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,13 +17,13 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static ru.buttonone.library.specifications.LibraryConstants.*;
+import static ru.buttonone.library.specifications.LibraryEndpoints.*;
 
 
 public class BookTest {
     private final BooksDao booksDao = new BooksDaoImpl();
 
-
-    @DisplayName("BUT-69 - Test 1")
+    @DisplayName("BUT-69")
     @Test
     public void createEntityWithPostAndCheckDbWithSelect() throws JsonProcessingException {
 
@@ -45,11 +46,16 @@ public class BookTest {
                 () -> Assertions.assertEquals(bookHarryPotter.getAuthors(), firstBook.getAuthors()),
                 () -> Assertions.assertEquals(HARRY_POTTER, firstBook.getTitle())
         );
+    }
+
+    @AfterEach
+    public void deleteTestBook() {
         booksDao.deleteBookByTitle(HARRY_POTTER);
+        booksDao.deleteBookByTitle(LOTR);
     }
 
 
-    @DisplayName("BUT-70 - Test 2")
+    @DisplayName("BUT-70")
     @Test
     public void createEntityWithPostAndCheckWithGet() throws JsonProcessingException {
 //expectedBook -> json
@@ -91,11 +97,9 @@ public class BookTest {
                 () -> Assertions.assertEquals(HARRY_POTTER, listOfBooks.get(0).getTitle()),
                 () -> Assertions.assertEquals(LOTR, listOfBooks.get(1).getTitle())
         );
-        booksDao.deleteBookByTitle(HARRY_POTTER);
-        booksDao.deleteBookByTitle(LOTR);
     }
 
-    @DisplayName("BUT-71 - Test 3")
+    @DisplayName("BUT-71")
     @Test
     public void deleteEntityWithHelpDeleteAndCheckEntityWithHelpGet() throws JsonProcessingException {
         String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
@@ -126,7 +130,7 @@ public class BookTest {
         Assertions.assertFalse(listOfBooks.contains(bookHarryPotter));
     }
 
-    @DisplayName("BUT-72 - Test 4")
+    @DisplayName("BUT-72")
     @Test
     public void createEntityWithPostThenDeleteHerAndCheckWithHelpGet() throws JsonProcessingException {
         String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
@@ -160,7 +164,5 @@ public class BookTest {
                 .jsonPath().getList("", Book.class);
 
         Assertions.assertFalse(listOfBooks.contains(bookHarryPotter));
-
-        booksDao.deleteBookByTitle(HARRY_POTTER);
     }
 }

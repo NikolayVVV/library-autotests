@@ -3,7 +3,7 @@ package ru.buttonone.library;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
-import io.restassured.http.Header;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,6 +15,7 @@ import ru.buttonone.domain.Genre;
 import ru.buttonone.library.specifications.LibrarySpecifications;
 
 import static ru.buttonone.library.specifications.LibraryConstants.*;
+import static ru.buttonone.library.specifications.LibraryEndpoints.ADD_BOOK_PATH;
 
 public class GenreTest {
     private final GenresDao genresDao = new GenresDaoImpl();
@@ -35,8 +36,12 @@ public class GenreTest {
                 .then()
                 .spec(LibrarySpecifications.postResponseSpecification());
 
-        Genre firstGenres = genresDao.getGenresByName("Fantastic").get(0);
+        Genre firstGenres = genresDao.getGenresByName(bookHarryPotter.getGenre()).get(0);
         Assertions.assertEquals(bookHarryPotter.getGenre(), firstGenres.getName());
+    }
+
+    @AfterEach
+    public void deleteTestBook() {
         booksDao.deleteBookByTitle(HARRY_POTTER);
     }
 }

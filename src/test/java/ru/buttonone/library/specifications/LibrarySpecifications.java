@@ -7,14 +7,13 @@ import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 
-import static ru.buttonone.library.specifications.LibraryConstants.BASE_URI;
-import static ru.buttonone.library.specifications.LibraryConstants.STATUS_CODE;
+import static ru.buttonone.library.specifications.LibraryEndpoints.*;
 
 public class LibrarySpecifications {
 
     public static RequestSpecification postRequestSpecification() {
         return new RequestSpecBuilder()
-                .addHeader("Content-Type", "application/json")
+                .addHeader(CONTENT_TYPE, APPLICATION_JSON)
                 .setBaseUri(BASE_URI)
                 .build();
     }
@@ -27,7 +26,7 @@ public class LibrarySpecifications {
 
     public static RequestSpecification getRequestSpecification() {
         return new RequestSpecBuilder()
-                .addHeader("Content-Type", "application/json")
+                .addHeader(CONTENT_TYPE, APPLICATION_JSON)
                 .setBaseUri(BASE_URI)
                 .build();
     }
@@ -41,7 +40,7 @@ public class LibrarySpecifications {
 
     public static RequestSpecification deleteRequestSpecification() {
         return new RequestSpecBuilder()
-                .addHeader("Content-Type", "application/json")
+                .addHeader(CONTENT_TYPE, APPLICATION_JSON)
                 .setBaseUri(BASE_URI)
                 .build();
     }
